@@ -14,10 +14,14 @@ create table recruteur
     experienceInYears int          not null
 );
 
-create table offer
+create table Offer
 (
-    id          int not null primary key,
-    recruteurId int not null,
-    candidatId  int not null,
-    horaire     timestamp
+    id varchar(255) not null primary key,
+    company varchar(255) not null,
+    title varchar(255) not null,
+    description varchar(255) not null,
+    email varchar(255) not null,
+    address varchar(255) not null,
+    disponibilite timestamp,
+    expiration timestamp
 );

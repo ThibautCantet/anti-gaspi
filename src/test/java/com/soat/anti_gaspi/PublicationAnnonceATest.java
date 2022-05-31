@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
 import com.soat.anti_gaspi.model.Offer;
-import com.soat.anti_gaspi.repository.AnnonceRepository;
+import com.soat.anti_gaspi.repository.OfferRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.fr.Alors;
 import io.cucumber.java.fr.Et;
@@ -28,6 +28,10 @@ import static io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.AUTO_CONFIGURED)
 @Transactional
 @AutoConfigureCache
@@ -40,16 +44,18 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class PublicationAnnonceATest extends ATest {
 
     @Autowired
-    private AnnonceRepository annonceRepository;
+    private OfferRepository offerRepository;
 
     private String company;
     private String title;
     private String description;
     private String email;
     private String address;
-    private String availability;
-    private String expiration;
+    private LocalDate availability;
+    private LocalDate expiration;
     private Offer offerToSave;
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Before
     @Override
@@ -89,12 +95,12 @@ public class PublicationAnnonceATest extends ATest {
 
     @Et("la date de disponibilité {string}")
     public void laDateDeDisponibilité(String availability) {
-        this.availability = availability;
+        this.availability = LocalDate.parse(availability, formatter);
     }
 
     @Et("la date d'expiration le {string}")
     public void laDateDExpirationLe(String expiration) {
-        this.expiration = expiration;
+        this.expiration = LocalDate.parse(expiration, formatter);
     }
 
     @Quand("on tente une publication d’une annonce")
@@ -123,12 +129,12 @@ public class PublicationAnnonceATest extends ATest {
 
     @Alors("la publication est enregistrée")
     public void laPublicationEstEnregistrée() {
-        Integer id = response.then()
+        UUID id = response.then()
                 .statusCode(HttpStatus.SC_CREATED)
                 .extract()
-                .as(Integer.class);
+                .as(UUID.class);
 
-        var savedOffer = annonceRepository.findById(id).orElse(null);
+        var savedOffer = offerRepository.findById(id).orElse(null);
         assertThat(savedOffer).isNotNull();
         assertThat(savedOffer).usingRecursiveComparison()
                 .ignoringFields("id")
