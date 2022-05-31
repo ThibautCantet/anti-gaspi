@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity(name = "Offer")
+@Entity
 public class Offer {
     @Id
     private UUID id;

@@ -1,10 +1,14 @@
 package com.soat.anti_gaspi;
 
+import com.dumbster.smtp.SimpleSmtpServer;
+import com.dumbster.smtp.SmtpMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
+import com.soat.anti_gaspi.controller.OfferJson;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.repository.OfferRepository;
+
 import io.cucumber.java.Before;
 import io.cucumber.java.fr.Alors;
 import io.cucumber.java.fr.Et;
@@ -13,7 +17,11 @@ import io.cucumber.java.fr.Quand;
 import io.cucumber.spring.CucumberContextConfiguration;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+
 import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -30,6 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.UUID;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.AUTO_CONFIGURED)
@@ -43,101 +52,128 @@ import java.util.UUID;
 @ActiveProfiles("AcceptanceTest")
 public class PublicationAnnonceATest extends ATest {
 
-    @Autowired
-    private OfferRepository offerRepository;
+   private static Logger LOGGER = LoggerFactory.getLogger(PublicationAnnonceATest.class);
 
-    private String company;
-    private String title;
-    private String description;
-    private String email;
-    private String address;
-    private LocalDate availabilityDate;
-    private LocalDate expirationDate;
-    private Offer offerToSave;
+   public static final int STMP_PORT = 9999;
+   @Autowired
+   private OfferRepository offerRepository;
 
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+   private SimpleSmtpServer mailServer;
 
-    @Before
-    @Override
-    public void setUp() {
-        initIntegrationTest();
-    }
+   private String company;
+   private String title;
+   private String description;
+   private String email;
+   private String address;
+   private LocalDate availabilityDate;
+   private LocalDate expirationDate;
+   private Offer offerToSave;
 
-    @Override
-    protected void initPath() {
-        RestAssured.basePath = OfferController.PATH;
-    }
+   private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    @Etantdonné("l'entreprise {string}")
-    public void lEntreprise(String company) {
-        this.company = company;
-    }
+   @Before
+   @Override
+   public void setUp() {
+      initIntegrationTest();
+      mailServer = SimpleSmtpServer.start(STMP_PORT);
+   }
 
-    @Etantdonné("le titre {string}")
-    public void leTitre(String title) {
-        this.title = title;
-    }
+   @After
+   public void tearDown() throws Exception {
+      mailServer.stop();
+   }
 
-    @Et("la description {string}")
-    public void laDescription(String description) {
-        this.description = description;
-    }
+   @Override
+   protected void initPath() {
+      RestAssured.basePath = OfferController.PATH;
+   }
 
-    @Et("l'email de contact {string}")
-    public void lEmailDeContact(String email) {
-        this.email = email;
-    }
+   @Etantdonné("l'entreprise {string}")
+   public void lEntreprise(String company) {
+      this.company = company;
+   }
 
-    @Et("l'adresse {string}")
-    public void lAdresse(String address) {
-        this.address = address;
-    }
+   @Etantdonné("le titre {string}")
+   public void leTitre(String title) {
+      this.title = title;
+   }
 
-    @Et("la date de disponibilité {string}")
-    public void laDateDeDisponibilité(String availability) {
-        this.availabilityDate = LocalDate.parse(availability, dateFormatter);
-    }
+   @Et("la description {string}")
+   public void laDescription(String description) {
+      this.description = description;
+   }
 
-    @Et("la date d'expiration le {string}")
-    public void laDateDExpirationLe(String expiration) {
-        this.expirationDate = LocalDate.parse(expiration, dateFormatter);
-    }
+   @Et("l'email de contact {string}")
+   public void lEmailDeContact(String email) {
+      this.email = email;
+   }
 
-    @Quand("on tente une publication d’une annonce")
-    public void onTenteUnePublicationDUneAnnonce() throws JsonProcessingException {
-        offerToSave = new Offer(
-                company,
-                title,
-                description,
-                email,
-                address,
-              availabilityDate,
-              expirationDate
-        );
+   @Et("l'adresse {string}")
+   public void lAdresse(String address) {
+      this.address = address;
+   }
 
-        String body = objectMapper.writeValueAsString(offerToSave);
-        initPath();
-        //@formatter:off
-        response = given()
-                .log().all()
-                .header("Content-Type", ContentType.JSON)
-                .body(body)
-                .when()
-                .post("/");
-        //@formatter:on
-    }
+   @Et("la date de disponibilité {string}")
+   public void laDateDeDisponibilité(String availability) {
+      this.availabilityDate = LocalDate.parse(availability);
+   }
 
-    @Alors("la publication est enregistrée")
-    public void laPublicationEstEnregistrée() {
-        UUID id = response.then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .extract()
-                .as(UUID.class);
+   @Et("la date d'expiration le {string}")
+   public void laDateDExpirationLe(String expiration) {
+      this.expirationDate = LocalDate.parse(expiration);
+   }
 
-        var savedOffer = offerRepository.findById(id).orElse(null);
-        assertThat(savedOffer).isNotNull();
-        assertThat(savedOffer).usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(this.offerToSave);
-    }
+   @Quand("on tente une publication d’une annonce")
+   public void onTenteUnePublicationDUneAnnonce() throws JsonProcessingException {
+      offerToSave = new Offer(
+            company,
+            title,
+            description,
+            email,
+            address,
+            availabilityDate,
+            expirationDate
+      );
+
+      String body = objectMapper.writeValueAsString(offerToSave);
+      initPath();
+      //@formatter:off
+      response = given()
+            .log().all()
+            .header("Content-Type", ContentType.JSON)
+            .body(body)
+            .when()
+            .post("/");
+      //@formatter:on
+   }
+
+   @Alors("la publication est enregistrée")
+   public void laPublicationEstEnregistrée() {
+      UUID id = response.then()
+            .statusCode(HttpStatus.SC_CREATED)
+            .extract()
+            .as(UUID.class);
+
+      var savedOffer = offerRepository.findById(id).orElse(null);
+      assertThat(savedOffer).isNotNull();
+      assertThat(savedOffer).usingRecursiveComparison()
+            .ignoringFields("id")
+            .isEqualTo(this.offerToSave);
+   }
+
+   @Et("un mail de confirmation est envoyé à {string}")
+   public void unMailDeConfirmationEstEnvoyéÀ(String email) {
+      assertThat(mailServer.getReceivedEmailSize()).isEqualTo(1);
+      Iterator<SmtpMessage> emails = mailServer.getReceivedEmail();
+      SmtpMessage sentEmail = emails.next();
+      String[] destinataires = sentEmail.getHeaderValues("To");
+      assertThat(destinataires.length).isEqualTo(1);
+      assertThat(destinataires[0]).isEqualTo(email);
+      assertThat(sentEmail.getHeaderValue("Subject")).contains(offerToSave.getTitle());
+      assertThat(sentEmail.getBody()).contains(offerToSave.getDescription());
+      assertThat(sentEmail.getBody()).contains(offerToSave.getCompany());
+      assertThat(sentEmail.getBody()).contains(offerToSave.getAddress());
+      assertThat(sentEmail.getBody()).contains(offerToSave.getAvailabilityDate().format(dateFormatter));
+      assertThat(sentEmail.getBody()).contains(offerToSave.getExpirationDate().format(dateFormatter));
+   }
 }

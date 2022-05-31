@@ -6,6 +6,6 @@ create table Offer
    description      varchar(255) not null,
    email            varchar(255) not null,
    address          varchar(255) not null,
-   titi timestamp,
-   toto   timestamp
+   availability_date timestamp,
+   expiration_date   timestamp
 );
