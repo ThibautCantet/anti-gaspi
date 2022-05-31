@@ -8,7 +8,7 @@ spring:
     name: cars
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/entretien
+    url: jdbc:postgresql://localhost:5432/antigaspi
     username: user
     password: password
 
@@ -16,4 +16,5 @@ server:
   port: 8081
 
   flyway:
-    table: schema_version
+    enabled: true
+    validate-on-migrate: true

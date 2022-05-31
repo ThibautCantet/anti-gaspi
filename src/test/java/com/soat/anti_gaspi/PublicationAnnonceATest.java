@@ -51,11 +51,11 @@ public class PublicationAnnonceATest extends ATest {
     private String description;
     private String email;
     private String address;
-    private LocalDate availability;
-    private LocalDate expiration;
+    private LocalDate availabilityDate;
+    private LocalDate expirationDate;
     private Offer offerToSave;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Before
     @Override
@@ -95,12 +95,12 @@ public class PublicationAnnonceATest extends ATest {
 
     @Et("la date de disponibilité {string}")
     public void laDateDeDisponibilité(String availability) {
-        this.availability = LocalDate.parse(availability, formatter);
+        this.availabilityDate = LocalDate.parse(availability, dateFormatter);
     }
 
     @Et("la date d'expiration le {string}")
     public void laDateDExpirationLe(String expiration) {
-        this.expiration = LocalDate.parse(expiration, formatter);
+        this.expirationDate = LocalDate.parse(expiration, dateFormatter);
     }
 
     @Quand("on tente une publication d’une annonce")
@@ -111,8 +111,8 @@ public class PublicationAnnonceATest extends ATest {
                 description,
                 email,
                 address,
-                availability,
-                expiration
+              availabilityDate,
+              expirationDate
         );
 
         String body = objectMapper.writeValueAsString(offerToSave);

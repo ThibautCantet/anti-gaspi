@@ -4,10 +4,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Entity
+@Entity(name = "Offer")
 public class Offer {
     @Id
     private UUID id;
@@ -22,18 +21,18 @@ public class Offer {
     @Column
     private String address;
     @Column
-    private LocalDate disponibilite;
+    private LocalDate availabilityDate;
     @Column
-    private LocalDate expiration;
+    private LocalDate expirationDate;
 
-    public Offer(String company, String title, String description, String email, String address, LocalDate disponibilite, LocalDate expiration) {
+    public Offer(String company, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate) {
         this.company = company;
         this.title = title;
         this.description = description;
         this.email = email;
         this.address = address;
-        this.disponibilite = disponibilite;
-        this.expiration = expiration;
+        this.availabilityDate = availabilityDate;
+        this.expirationDate = expirationDate;
     }
 
     public Offer() {
@@ -65,12 +64,12 @@ public class Offer {
         return address;
     }
 
-    public LocalDate getDisponibilite() {
-        return disponibilite;
+    public LocalDate getAvailabilityDate() {
+        return availabilityDate;
     }
 
-    public LocalDate getExpiration() {
-        return expiration;
+    public LocalDate getExpirationDate() {
+        return expirationDate;
     }
 
     public void setId(UUID id) {
