@@ -5,10 +5,9 @@ import com.dumbster.smtp.SmtpMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
-import com.soat.anti_gaspi.controller.OfferJson;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.repository.OfferRepository;
-
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.fr.Alors;
 import io.cucumber.java.fr.Et;
@@ -17,9 +16,9 @@ import io.cucumber.java.fr.Quand;
 import io.cucumber.spring.CucumberContextConfiguration;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.apache.http.HttpStatus;
-import org.junit.After;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +31,19 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import static io.restassured.RestAssured.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.*;
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.AUTO_CONFIGURED)
 @Transactional
@@ -73,7 +77,7 @@ public class PublicationAnnonceATest extends ATest {
 
    @Before
    @Override
-   public void setUp() {
+   public void setUp() throws IOException {
       initIntegrationTest();
       mailServer = SimpleSmtpServer.start(STMP_PORT);
    }
@@ -161,19 +165,45 @@ public class PublicationAnnonceATest extends ATest {
             .isEqualTo(this.offerToSave);
    }
 
-   @Et("un mail de confirmation est envoyé à {string}")
-   public void unMailDeConfirmationEstEnvoyéÀ(String email) {
-      assertThat(mailServer.getReceivedEmailSize()).isEqualTo(1);
-      Iterator<SmtpMessage> emails = mailServer.getReceivedEmail();
-      SmtpMessage sentEmail = emails.next();
-      String[] destinataires = sentEmail.getHeaderValues("To");
-      assertThat(destinataires.length).isEqualTo(1);
-      assertThat(destinataires[0]).isEqualTo(email);
-      assertThat(sentEmail.getHeaderValue("Subject")).contains(offerToSave.getTitle());
-      assertThat(sentEmail.getBody()).contains(offerToSave.getDescription());
-      assertThat(sentEmail.getBody()).contains(offerToSave.getCompany());
-      assertThat(sentEmail.getBody()).contains(offerToSave.getAddress());
-      assertThat(sentEmail.getBody()).contains(offerToSave.getAvailabilityDate().format(dateFormatter));
-      assertThat(sentEmail.getBody()).contains(offerToSave.getExpirationDate().format(dateFormatter));
-   }
+    @Et("un mail de confirmation est envoyé à {string}")
+    public void unMailDeConfirmationEstEnvoyéÀ(String email) throws DecoderException {
+        List<SmtpMessage> emails = mailServer.getReceivedEmails();
+        assertThat(emails).hasSize(1);
+        SmtpMessage sentEmail = emails.get(0);
+        System.out.println("sentEmail = " + sentEmail);
+        List<String> destinataires = sentEmail.getHeaderValues("To");
+        assertThat(destinataires).hasSize(1);
+        assertThat(destinataires.get(0)).isEqualTo(email);
+        assertThat(sentEmail.getHeaderValue("Subject")).contains(offerToSave.getTitle());
+        String body = decodeBody(sentEmail);
+        assertThat(body).contains(offerToSave.getDescription());
+        assertThat(body).contains(offerToSave.getCompany());
+        assertThat(body).contains(offerToSave.getAddress());
+        assertThat(body).contains(offerToSave.getAvailabilityDate().toString());
+        assertThat(body).contains(offerToSave.getExpirationDate().toString());
+    }
+
+    private String decodeBody(SmtpMessage email) throws DecoderException {
+        String cte = email.getHeaderValue("Content-Transfer-Encoding");
+        if ("quoted-printable".equals(cte)) {
+            String fixedBody = fixBody(email.getBody());
+            QuotedPrintableCodec codec = new QuotedPrintableCodec(StandardCharsets.UTF_8);
+            return codec.decode(fixedBody);
+        }
+        return email.getBody();
+    }
+
+    private String fixBody(String body) {
+        // lines in an email body are at maximum with 76 chars long
+        // the lines that are longer than that can use a CR char ('\r' or char(13)) to soft break the line
+        // those characters are escaped with the '=' sign
+        // the decoder expect to find a CR char after the '=' found at 76nth positions
+        // the mailServer mock library seems to have a bug rendering those lines in the getBody() method
+        // let's split the body every 76 chars and glue the part with a CR char
+        return Pattern.compile(".{1,76}")
+                .matcher(body)
+                .results()
+                .map(MatchResult::group)
+                .collect(Collectors.joining("\r"));
+    }
 }
