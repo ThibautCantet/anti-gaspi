@@ -5,8 +5,7 @@ import com.dumbster.smtp.SmtpMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
-import com.soat.anti_gaspi.controller.OfferJson;
-import com.soat.anti_gaspi.controller.OfferSavedJson;
+import com.soat.anti_gaspi.controller.SavedOffer;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
@@ -59,8 +58,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @CucumberContextConfiguration
 @ActiveProfiles("AcceptanceTest")
 public class PublicationAnnonceATest extends ATest {
-
-   private static Logger LOGGER = LoggerFactory.getLogger(PublicationAnnonceATest.class);
 
    public static final int STMP_PORT = 9999;
    @Autowired
@@ -277,16 +274,16 @@ public class PublicationAnnonceATest extends ATest {
 
     @Alors("la publication les annonces affichées sont:")
     public void laPublicationLesAnnoncesAffichéesSont(DataTable dataTable) {
-        List<OfferSavedJson> offerSavedJsons = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
+        List<SavedOffer> savedOffers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
         var detailDtos = response.then().statusCode(HttpStatus.SC_OK).extract()
-                .as(OfferSavedJson[].class);
+                .as(SavedOffer[].class);
         assertThat(Arrays.stream(detailDtos).toList())
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyInAnyOrder(offerSavedJsons.toArray(OfferSavedJson[]::new));
+                .containsExactlyInAnyOrder(savedOffers.toArray(SavedOffer[]::new));
     }
 
-    private static OfferSavedJson buildOfferSavedJson(Map<String, String> entry) {
-        return new OfferSavedJson(
+    private static SavedOffer buildOfferSavedJson(Map<String, String> entry) {
+        return new SavedOffer(
                 UUID.fromString(entry.get("id")),
                 entry.get("companyName"),
                 entry.get("titre"),
@@ -347,7 +344,7 @@ public class PublicationAnnonceATest extends ATest {
                                                                  String availabilityDate,
                                                                  String expirationDate) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        var expectedOffer = new OfferSavedJson(
+        var expectedOffer = new SavedOffer(
                 id,
                 companyName,
                 titre,
@@ -360,7 +357,7 @@ public class PublicationAnnonceATest extends ATest {
         var offer = response.then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
-                .as(OfferSavedJson.class);
+                .as(SavedOffer.class);
 
         assertThat(expectedOffer).usingRecursiveComparison().isEqualTo(offer);
     }

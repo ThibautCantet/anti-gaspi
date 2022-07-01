@@ -35,15 +35,15 @@ public class OfferController {
     }
 
     @PostMapping("")
-    public ResponseEntity<UUID> create(@RequestBody OfferJson offerJson) throws NotificationException {
+    public ResponseEntity<UUID> create(@RequestBody OfferToSave offerToSave) throws NotificationException {
         Offer offer = new Offer(
-                offerJson.companyName(),
-                offerJson.title(),
-                offerJson.description(),
-                offerJson.email(),
-                offerJson.address(),
-                LocalDate.parse(offerJson.availabilityDate(), dateFormatter),
-                LocalDate.parse(offerJson.expirationDate(), dateFormatter));
+                offerToSave.companyName(),
+                offerToSave.title(),
+                offerToSave.description(),
+                offerToSave.email(),
+                offerToSave.address(),
+                LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
+                LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
         offer.setId(UUID.randomUUID());
         var saved = offerRepository.save(offer);
 
@@ -66,7 +66,7 @@ public class OfferController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OfferSavedJson>> getPublishedOffers() {
+    public ResponseEntity<List<SavedOffer>> getPublishedOffers() {
         var allOffers = (List<Offer>) offerRepository.findAll();
         var publishedOffers = allOffers.stream()
                 .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
@@ -75,8 +75,8 @@ public class OfferController {
         return new ResponseEntity<>(publishedOffers, HttpStatus.OK);
     }
 
-    private OfferSavedJson toOfferSavedJson(Offer offer) {
-        return new OfferSavedJson(offer.getId(),
+    private SavedOffer toOfferSavedJson(Offer offer) {
+        return new SavedOffer(offer.getId(),
                 offer.getCompanyName(),
                 offer.getTitle(),
                 offer.getDescription(),
@@ -87,8 +87,8 @@ public class OfferController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OfferSavedJson> findById(@PathVariable("id") UUID id) {
-        Optional<OfferSavedJson> optionalOffer = offerRepository.findById(id)
+    public ResponseEntity<SavedOffer> findById(@PathVariable("id") UUID id) {
+        Optional<SavedOffer> optionalOffer = offerRepository.findById(id)
                 .map(this::toOfferSavedJson);
 
         return optionalOffer
