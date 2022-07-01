@@ -2,6 +2,7 @@ package com.soat.anti_gaspi.controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -12,17 +13,14 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
 import com.soat.anti_gaspi.model.NotificationException;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(OfferController.PATH)
@@ -39,13 +37,13 @@ public class OfferController {
     @PostMapping("")
     public ResponseEntity<UUID> create(@RequestBody OfferJson offerJson) throws NotificationException {
         Offer offer = new Offer(
-              offerJson.companyName(),
-              offerJson.title(),
-              offerJson.description(),
-              offerJson.email(),
-              offerJson.address(),
-              LocalDate.parse(offerJson.availabilityDate(), dateFormatter),
-              LocalDate.parse(offerJson.expirationDate(), dateFormatter));
+                offerJson.companyName(),
+                offerJson.title(),
+                offerJson.description(),
+                offerJson.email(),
+                offerJson.address(),
+                LocalDate.parse(offerJson.availabilityDate(), dateFormatter),
+                LocalDate.parse(offerJson.expirationDate(), dateFormatter));
         offer.setId(UUID.randomUUID());
         var saved = offerRepository.save(offer);
 
@@ -66,6 +64,17 @@ public class OfferController {
         });
         return new ResponseEntity<>(status.get());
     }
+
+    @GetMapping
+    public ResponseEntity<List<OfferSavedJson>> getPublishedOffers() {
+        var allOffers = (List<Offer>) offerRepository.findAll();
+        var publishedOffers = allOffers.stream()
+                .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
+                .map(offer -> new OfferSavedJson(offer.getId(), offer.getCompanyName(), offer.getTitle(), offer.getDescription(), offer.getEmail(), offer.getAddress(), offer.getAvailabilityDate(), offer.getExpirationDate()))
+                .toList();
+        return new ResponseEntity<>(publishedOffers, HttpStatus.OK);
+    }
+
 
     private void sendEmail(String subject, String beneficiaire, String body) throws NotificationException {
         try {

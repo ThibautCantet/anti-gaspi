@@ -5,6 +5,8 @@ import com.dumbster.smtp.SmtpMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
+import com.soat.anti_gaspi.controller.OfferJson;
+import com.soat.anti_gaspi.controller.OfferSavedJson;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
@@ -36,10 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -78,7 +77,9 @@ public class PublicationAnnonceATest extends ATest {
    private LocalDate expirationDate;
    private Offer offerToSave;
 
-   @Before
+   private List<OfferSavedJson> offerSavedJsons;
+
+    @Before
    @Override
    public void setUp() throws IOException {
       initIntegrationTest();
@@ -211,7 +212,7 @@ public class PublicationAnnonceATest extends ATest {
                 .collect(Collectors.joining("\r"));
     }
 
-    @Etantdonné("les annnonces:")
+    @Etantdonné("les annnonces sauvegardées:")
     public void lesAnnnonces(DataTable dataTable) {
         List<Offer> offers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOffer);
         offerRepository.saveAll(offers);
@@ -262,5 +263,38 @@ public class PublicationAnnonceATest extends ATest {
                 .when()
                 .post("/" + id + "/confirm");
         //@formatter:on
+    }
+
+    @Quand("on tente d'afficher les annonces")
+    public void onTenteDAfficherLesAnnonces() {
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .when()
+                .get("/" );
+
+    }
+
+    @Alors("la publication les annonces affichées sont:")
+    public void laPublicationLesAnnoncesAffichéesSont(DataTable dataTable) {
+        offerSavedJsons = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
+        var detailDtos = response.then().statusCode(HttpStatus.SC_OK).extract()
+                .as(OfferSavedJson[].class);
+        assertThat(Arrays.stream(detailDtos).toList())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(offerSavedJsons.toArray(OfferSavedJson[]::new));
+    }
+
+    private static OfferSavedJson buildOfferSavedJson(Map<String, String> entry) {
+        return new OfferSavedJson(
+                UUID.fromString(entry.get("id")),
+                entry.get("companyName"),
+                entry.get("titre"),
+                entry.get("description"),
+                entry.get("email"),
+                entry.get("adresse"),
+                LocalDate.parse(entry.get("date de disponibilité")),
+                LocalDate.parse(entry.get("date d'expiration"))
+        );
     }
 }
