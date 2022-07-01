@@ -15,43 +15,43 @@ Fonctionnalité: Publication d'une annonce
 
   Scénario: Annonce confirmée
     Etant donné les annnonces sauvegardées:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
     Quand on tente de confirmer l annonce avec l id "9c1845ea-a7be-4848-aba4-66ba33fd6d38"
     Alors la publication est au statut est "publiée"
 
   Scénario: Annonces affichées
     Etant donné les annnonces sauvegardées:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
     Quand on tente d'afficher les annonces
     Alors la publication les annonces affichées sont:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | 2022-05-31            | 2022-06-30        |
 
   Scénario: Annonce affichée
     Etant donné les annnonces sauvegardées:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
     Quand on tente d'afficher l annonce "9c1845ea-a7be-4848-aba4-66ba33fd6d39"
     Alors l annonce affichée contient les informations suivantes "SOAT", "Don  de 3 ordinateurs", "3 ordinateurs sous Windows 10 en bon état", "revendeur@donner.fr", "20 rue des frigos, 75013 Paris", "2022-05-31", "2022-06-30"
 
   Scénario: Annonce supprimée
     Etant donné les annnonces sauvegardées:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
     Quand on tente de supprimer l annonce ave l id "9c1845ea-a7be-4848-aba4-66ba33fd6d39"
     Alors l'annonce est bien supprimée
     Et les annonces en base sont:
-      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |

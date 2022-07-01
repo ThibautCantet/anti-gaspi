@@ -217,7 +217,7 @@ public class PublicationAnnonceATest extends ATest {
     private static Offer buildOffer(Map<String, String> entry) {
         return new Offer(
                 UUID.fromString(entry.get("id")),
-                entry.get("companyName"),
+                entry.get("entreprise"),
                 entry.get("titre"),
                 entry.get("description"),
                 entry.get("email"),
@@ -285,7 +285,7 @@ public class PublicationAnnonceATest extends ATest {
     private static SavedOffer buildOfferSavedJson(Map<String, String> entry) {
         return new SavedOffer(
                 UUID.fromString(entry.get("id")),
-                entry.get("companyName"),
+                entry.get("entreprise"),
                 entry.get("titre"),
                 entry.get("description"),
                 entry.get("email"),
