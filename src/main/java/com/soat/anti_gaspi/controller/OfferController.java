@@ -14,9 +14,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.soat.anti_gaspi.model.Contact;
 import com.soat.anti_gaspi.model.NotificationException;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
+import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +30,11 @@ public class OfferController {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final String PATH = "/api/offers";
     private final OfferRepository offerRepository;
+    private final ContactRepository contactRepository;
 
-    public OfferController(OfferRepository offerRepository) {
-
+    public OfferController(OfferRepository offerRepository, ContactRepository contactRepository) {
         this.offerRepository = offerRepository;
+        this.contactRepository = contactRepository;
     }
 
     @PostMapping("")
@@ -44,7 +47,7 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if(offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
+        if (offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         offer.setId(UUID.randomUUID());
@@ -104,6 +107,23 @@ public class OfferController {
         offerRepository.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{id}/contact")
+    public ResponseEntity<UUID> createContact(@PathVariable("id") UUID id, @RequestBody ContactToSave contactToSave) throws NotificationException {
+        Contact contact = new Contact(
+                contactToSave.lastName(),
+                contactToSave.firstName(),
+                contactToSave.phoneNumber(),
+                contactToSave.messageContent(),
+                contactToSave.offerId()
+        );
+
+        contact.setId(UUID.randomUUID());
+        final Contact savedContact = contactRepository.save(contact);
+        final Offer offer = offerRepository.findById(id).orElse(null);
+        sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto" );
+        return new ResponseEntity<>(savedContact.getId(), HttpStatus.CREATED);
     }
 
     private void sendEmail(String subject, String beneficiaire, String body) throws NotificationException {

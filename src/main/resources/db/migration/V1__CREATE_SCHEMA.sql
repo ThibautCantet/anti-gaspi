@@ -10,3 +10,13 @@ create table Offer
     expiration_date   timestamp,
     status            varchar(30)
 );
+
+create table Contact
+(
+    id             varchar(255) not null primary key,
+    last_name       varchar(255) not null,
+    first_name      varchar(255) not null,
+    phone_number    varchar(255) not null,
+    message_content varchar(255) not null,
+    offer_id        varchar(255) not null
+);

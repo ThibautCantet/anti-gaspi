@@ -4,10 +4,13 @@ import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
+import com.soat.anti_gaspi.controller.ContactToSave;
 import com.soat.anti_gaspi.controller.OfferController;
 import com.soat.anti_gaspi.controller.SavedOffer;
+import com.soat.anti_gaspi.model.Contact;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
+import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -22,8 +25,6 @@ import io.restassured.http.ContentType;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -59,97 +60,106 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("AcceptanceTest")
 public class PublicationAnnonceATest extends ATest {
 
-   public static final int STMP_PORT = 9999;
-   @Autowired
-   private OfferRepository offerRepository;
+    public static final int STMP_PORT = 9999;
+    @Autowired
+    private OfferRepository offerRepository;
 
-   private SimpleSmtpServer mailServer;
 
-   private UUID id;
-   private String companyName;
-   private String title;
-   private String description;
-   private String email;
-   private String address;
-   private LocalDate availabilityDate;
-   private LocalDate expirationDate;
-   private Offer offerToSave;
+    @Autowired
+    private ContactRepository contactRepository;
 
-   @Before
-   @Override
-   public void setUp() throws IOException {
-      initIntegrationTest();
-      mailServer = SimpleSmtpServer.start(STMP_PORT);
-      initPath();
-   }
+    private SimpleSmtpServer mailServer;
 
-   @After
-   public void tearDown() {
-      mailServer.stop();
-   }
+    private UUID id;
+    private String companyName;
+    private String title;
+    private String description;
+    private String email;
+    private String address;
+    private LocalDate availabilityDate;
+    private LocalDate expirationDate;
+    private Offer offerToSave;
+    private String lastName;
+    private String firstName;
+    private String phoneNumber;
+    private String messageContent;
 
-   @Override
-   protected void initPath() {
-      RestAssured.basePath = OfferController.PATH;
-   }
+    @Before
+    @Override
+    public void setUp() throws IOException {
+        initIntegrationTest();
+        mailServer = SimpleSmtpServer.start(STMP_PORT);
+        initPath();
+    }
 
-   @Etantdonné("l'entreprise {string}")
-   public void lEntreprise(String company) {
-      this.companyName = company;
-   }
+    @After
+    public void tearDown() {
+        mailServer.stop();
+    }
 
-   @Etantdonné("le titre {string}")
-   public void leTitre(String title) {
-      this.title = title;
-   }
+    @Override
+    protected void initPath() {
+        RestAssured.basePath = OfferController.PATH;
+    }
 
-   @Et("la description {string}")
-   public void laDescription(String description) {
-      this.description = description;
-   }
+    @Etantdonné("l'entreprise {string}")
+    public void lEntreprise(String company) {
+        this.companyName = company;
+    }
 
-   @Et("l'email de contact {string}")
-   public void lEmailDeContact(String email) {
-      this.email = email;
-   }
+    @Etantdonné("le titre {string}")
+    public void leTitre(String title) {
+        this.title = title;
+    }
 
-   @Et("l'adresse {string}")
-   public void lAdresse(String address) {
-      this.address = address;
-   }
+    @Et("la description {string}")
+    public void laDescription(String description) {
+        this.description = description;
+    }
 
-   @Et("la date de disponibilité {string}")
-   public void laDateDeDisponibilité(String availability) {
-      this.availabilityDate = LocalDate.parse(availability);
-   }
+    @Et("l'email de contact {string}")
+    public void lEmailDeContact(String email) {
+        this.email = email;
+    }
 
-   @Et("la date d'expiration le {string}")
-   public void laDateDExpirationLe(String expiration) {
-      this.expirationDate = LocalDate.parse(expiration);
-   }
+    @Et("l'adresse {string}")
+    public void lAdresse(String address) {
+        this.address = address;
+    }
 
-   @Quand("on tente une publication d’une annonce")
-   public void onTenteUnePublicationDUneAnnonce() throws JsonProcessingException {
-      offerToSave = new Offer(
-            companyName,
-            title,
-            description,
-            email,
-            address,
-            availabilityDate,
-            expirationDate
-      );
+    @Et("la date de disponibilité {string}")
+    public void laDateDeDisponibilité(String availability) {
+        this.availabilityDate = LocalDate.parse(availability);
+    }
 
-      String body = objectMapper.writeValueAsString(offerToSave);
-      //@formatter:off
-      response = given()
-            .log().all()
-            .header("Content-Type", ContentType.JSON)
-            .body(body)
-            .when()
-            .post("/");
-      //@formatter:on
-   }
+    @Et("la date d'expiration le {string}")
+    public void laDateDExpirationLe(String expiration) {
+        this.expirationDate = LocalDate.parse(expiration);
+    }
+
+    @Quand("on tente une publication d’une annonce")
+    public void onTenteUnePublicationDUneAnnonce() throws JsonProcessingException {
+        offerToSave = new Offer(
+                companyName,
+                title,
+                description,
+                email,
+                address,
+                availabilityDate,
+                expirationDate
+        );
+
+        String body = objectMapper.writeValueAsString(offerToSave);
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .body(body)
+                .when()
+                .post("/");
+        //@formatter:on
+    }
+
     @Alors("la publication est enregistrée et un statut est {string}")
     public void laPublicationEstEnregistréeEtUnStatutEst(String statusValue) {
         Status status = Status.from(statusValue);
@@ -228,6 +238,7 @@ public class PublicationAnnonceATest extends ATest {
         );
 
     }
+
     public static <T> List<T> dataTableTransformEntries(DataTable dataTable, Function<Map<String, String>, T> transformFunction) {
         final List<T> transformResults = new ArrayList<>();
         final List<Map<String, String>> dataTableEntries = dataTable.asMaps(String.class, String.class);
@@ -250,7 +261,7 @@ public class PublicationAnnonceATest extends ATest {
 
     @Quand("on tente de confirmer l annonce avec l id {string}")
     public void onTenteDeConfirmerLAnnonceAvecLId(String id) {
-       this.id = UUID.fromString(id);
+        this.id = UUID.fromString(id);
 
         //@formatter:off
         response = given()
@@ -268,7 +279,7 @@ public class PublicationAnnonceATest extends ATest {
                 .log().all()
                 .header("Content-Type", ContentType.JSON)
                 .when()
-                .get("/" );
+                .get("/");
         //@formatter:on
     }
 
@@ -302,7 +313,7 @@ public class PublicationAnnonceATest extends ATest {
                 .log().all()
                 .header("Content-Type", ContentType.JSON)
                 .when()
-                .delete("/" + id );
+                .delete("/" + id);
         //@formatter:on
     }
 
@@ -325,14 +336,14 @@ public class PublicationAnnonceATest extends ATest {
 
     @Quand("on tente d'afficher l annonce {string}")
     public void onTenteDAfficherLAnnonce(String id) {
-       this.id = UUID.fromString(id);
-       //@formatter:off
-       response = given()
-                       .log().all()
-                       .header("Content-Type", ContentType.JSON)
-                   .when()
-                       .get("/" + id );
-       //@formatter:on
+        this.id = UUID.fromString(id);
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .when()
+                .get("/" + id);
+        //@formatter:on
     }
 
     @Alors("l annonce affichée contient les informations suivantes {string}, {string}, {string}, {string}, {string}, {string}, {string}")
@@ -366,5 +377,74 @@ public class PublicationAnnonceATest extends ATest {
     public void laPublicationNEstEnregistrée() {
         response.then()
                 .statusCode(HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Et("un utilisateur ayant le nom {string}")
+    public void unUtilisateurAyantLeNom(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @Et("le prenom {string}")
+    public void lePrenom(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Et("l'email {string}")
+    public void lEmail(String email) {
+        this.email = email;
+    }
+
+    @Et("le telephone {string}")
+    public void leTelephone(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    @Et("le message {string}")
+    public void leMessage(String messageContent) {
+        this.messageContent = messageContent;
+    }
+
+
+    @Alors("la prise de contact est enregistée")
+    public void laPriseDeContactEstEnregistée() {
+        UUID createdContactId = response.then()
+                .statusCode(HttpStatus.SC_CREATED)
+                .extract()
+                .as(UUID.class);
+        final Optional<Contact> savedContact = contactRepository.findById(createdContactId);
+        assertThat(savedContact).isPresent();
+    }
+
+    @Quand("il tente de contacter l'entreprise pour l’annonce avec l id {string}")
+    public void ilTenteDeContacterLEntreprisePourLAnnonceAvecLId(String offerId) throws JsonProcessingException {
+        ContactToSave contactToSave = new ContactToSave(lastName, firstName, phoneNumber, messageContent, offerId);
+
+        String body = objectMapper.writeValueAsString(contactToSave);
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .body(body)
+                .when()
+                .post("/" + offerId + "/contact");
+        //@formatter:on
+    }
+
+    @Et("un mail est envoyé à {string}")
+    public void unMailEstEnvoyéÀ(String companyEmail) throws DecoderException {
+        List<SmtpMessage> emails = mailServer.getReceivedEmails();
+        assertThat(emails).hasSize(1);
+        SmtpMessage sentEmail = emails.get(0);
+        System.out.println("sentEmail = " + sentEmail);
+        List<String> destinataires = sentEmail.getHeaderValues("To");
+
+        assertThat(destinataires).hasSize(1);
+        assertThat(destinataires.get(0)).isEqualTo(companyEmail);
+
+        assertThat(sentEmail.getHeaderValue("Subject")).contains(lastName + "is interested to your offer");
+        String body = decodeBody(sentEmail);
+        assertThat(body).contains("toto");
+        // assertThat(body).contains(email);
+        // assertThat(body).contains(phoneNumber);
     }
 }

@@ -66,3 +66,19 @@ Fonctionnalité: Publication d'une annonce
       | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
       | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
       | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+
+
+  Scénario: Prise de contact
+    Etant donné les annnonces sauvegardées:
+      | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT       | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | publiée     | 2022-05-31            | 2022-06-30        |
+    Et un utilisateur ayant le nom "Dupond"
+    Et le prenom "Martin"
+    Et l'email "utilisateur@donner.fr"
+    Et le telephone "0712345678"
+    Et le message "lorem ipsum"
+    Quand il tente de contacter l'entreprise pour l’annonce avec l id "9c1845ea-a7be-4848-aba4-66ba33fd6d39"
+    Alors la prise de contact est enregistée
+    Et un mail est envoyé à "revendeur@donner.fr"
