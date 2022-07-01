@@ -8,6 +8,7 @@ import com.soat.anti_gaspi.controller.OfferController;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.fr.Alors;
@@ -35,9 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -205,5 +208,60 @@ public class PublicationAnnonceATest extends ATest {
                 .results()
                 .map(MatchResult::group)
                 .collect(Collectors.joining("\r"));
+    }
+
+    @Etantdonné("les annnonces:")
+    public void lesAnnnonces(DataTable dataTable) {
+        List<Offer> offers = dataTableTransformEntries(dataTable, this::buildOffer);
+        offerRepository.saveAll(offers);
+    }
+    private Offer buildOffer(Map<String, String> entry) {
+        return new Offer(
+                UUID.fromString(entry.get("id")),
+                entry.get("company"),
+                entry.get("title"),
+                entry.get("description"),
+                entry.get("email"),
+                entry.get("address"),
+                LocalDate.parse(entry.get("availabilityDate")),
+                LocalDate.parse(entry.get("expirationDate")),
+                Status.from(entry.get("status"))
+        );
+
+    }
+    public static <T> List<T> dataTableTransformEntries(DataTable dataTable, Function<Map<String, String>, T> transformFunction) {
+        final List<T> transformResults = new ArrayList<>();
+        final List<Map<String, String>> dataTableEntries = dataTable.asMaps(String.class, String.class);
+        dataTableEntries.forEach(mapEntry -> {
+            transformResults.add(transformFunction.apply(mapEntry));
+        });
+        return transformResults;
+    }
+
+    @Alors("la publication est au statut est {string}")
+    public void laPublicationEstAuStatutEst(String statusValue) {
+        Status status = Status.from(statusValue);
+        UUID id = response.then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(UUID.class);
+
+        var savedOffer = offerRepository.findById(id).orElse(null);
+        assertThat(savedOffer).isNotNull();
+        assertThat(savedOffer).usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(this.offerToSave);
+        assertThat(savedOffer.getStatus()).isEqualTo(status);
+    }
+
+    @Quand("on tente de confirmer l annonce avec l id {string}")
+    public void onTenteDeConfirmerLAnnonceAvecLId(String id) {
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .when()
+                .post("/" + id + "/confirmation");
+        //@formatter:on
     }
 }
