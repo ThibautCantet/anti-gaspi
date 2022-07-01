@@ -61,8 +61,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext
 @CucumberContextConfiguration
-// @ContextConfiguration(classes = { PublicationAnnonceATest.Config.class })
-@Import({  PublicationAnnonceATest.Config.class })
+//@ContextConfiguration(classes = { PublicationAnnonceATest.Config.class })
+//@Import({  PublicationAnnonceATest.Config.class })
 @ActiveProfiles("AcceptanceTest")
 public class PublicationAnnonceATest extends ATest {
 
