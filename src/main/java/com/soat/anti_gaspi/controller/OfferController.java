@@ -70,9 +70,30 @@ public class OfferController {
         var allOffers = (List<Offer>) offerRepository.findAll();
         var publishedOffers = allOffers.stream()
                 .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
-                .map(offer -> new OfferSavedJson(offer.getId(), offer.getCompanyName(), offer.getTitle(), offer.getDescription(), offer.getEmail(), offer.getAddress(), offer.getAvailabilityDate(), offer.getExpirationDate()))
+                .map(this::toOfferSavedJson)
                 .toList();
         return new ResponseEntity<>(publishedOffers, HttpStatus.OK);
+    }
+
+    private OfferSavedJson toOfferSavedJson(Offer offer) {
+        return new OfferSavedJson(offer.getId(),
+                offer.getCompanyName(),
+                offer.getTitle(),
+                offer.getDescription(),
+                offer.getEmail(),
+                offer.getAddress(),
+                offer.getAvailabilityDate(),
+                offer.getExpirationDate());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OfferSavedJson> findById(@PathVariable("id") UUID id) {
+        Optional<OfferSavedJson> optionalOffer = offerRepository.findById(id)
+                .map(this::toOfferSavedJson);
+
+        return optionalOffer
+                .map(offer -> new ResponseEntity<>(offer, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")

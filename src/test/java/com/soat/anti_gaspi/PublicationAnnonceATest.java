@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
@@ -323,5 +324,44 @@ public class PublicationAnnonceATest extends ATest {
         assertThat(savedOffers)
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(expectedSavedOffers.toArray(Offer[]::new));
+    }
+
+    @Quand("on tente d'afficher l annonce {string}")
+    public void onTenteDAfficherLAnnonce(String id) {
+       this.id = UUID.fromString(id);
+       //@formatter:off
+       response = given()
+                       .log().all()
+                       .header("Content-Type", ContentType.JSON)
+                   .when()
+                       .get("/" + id );
+       //@formatter:on
+    }
+
+    @Alors("l annonce affichée contient les informations suivantes {string}, {string}, {string}, {string}, {string}, {string}, {string}")
+    public void lAnnonceAffichéeContientLesInformationsSuivantes(String companyName,
+                                                                 String titre,
+                                                                 String description,
+                                                                 String email,
+                                                                 String adresse,
+                                                                 String availabilityDate,
+                                                                 String expirationDate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        var expectedOffer = new OfferSavedJson(
+                id,
+                companyName,
+                titre,
+                description,
+                email,
+                adresse,
+                LocalDate.parse(availabilityDate, dateTimeFormatter),
+                LocalDate.parse(expirationDate, dateTimeFormatter));
+
+        var offer = response.then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(OfferSavedJson.class);
+
+        assertThat(expectedOffer).usingRecursiveComparison().isEqualTo(offer);
     }
 }
