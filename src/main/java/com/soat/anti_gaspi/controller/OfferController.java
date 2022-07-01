@@ -1,5 +1,6 @@
 package com.soat.anti_gaspi.controller;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.mail.internet.MimeMessage;
 import com.soat.anti_gaspi.model.NotificationException;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
+import com.soat.anti_gaspi.repository.ClockRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +31,12 @@ public class OfferController {
     public static final String PATH = "/api/offers";
     private final OfferRepository offerRepository;
 
-    public OfferController(OfferRepository offerRepository) {
+    private ClockRepository clockRepository;
+
+    public OfferController(OfferRepository offerRepository, ClockRepository clockRepository) {
 
         this.offerRepository = offerRepository;
+        this.clockRepository = clockRepository;
     }
 
     @PostMapping("")
@@ -44,7 +49,8 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if(offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
+
+        if (offer.getExpirationDate().isBefore(clockRepository.now()) || offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         offer.setId(UUID.randomUUID());
