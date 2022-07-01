@@ -77,9 +77,7 @@ public class PublicationAnnonceATest extends ATest {
    private LocalDate expirationDate;
    private Offer offerToSave;
 
-   private List<OfferSavedJson> offerSavedJsons;
-
-    @Before
+   @Before
    @Override
    public void setUp() throws IOException {
       initIntegrationTest();
@@ -267,17 +265,18 @@ public class PublicationAnnonceATest extends ATest {
 
     @Quand("on tente d'afficher les annonces")
     public void onTenteDAfficherLesAnnonces() {
+        //@formatter:off
         response = given()
                 .log().all()
                 .header("Content-Type", ContentType.JSON)
                 .when()
                 .get("/" );
-
+        //@formatter:on
     }
 
     @Alors("la publication les annonces affichées sont:")
     public void laPublicationLesAnnoncesAffichéesSont(DataTable dataTable) {
-        offerSavedJsons = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
+        List<OfferSavedJson> offerSavedJsons = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
         var detailDtos = response.then().statusCode(HttpStatus.SC_OK).extract()
                 .as(OfferSavedJson[].class);
         assertThat(Arrays.stream(detailDtos).toList())
@@ -296,5 +295,33 @@ public class PublicationAnnonceATest extends ATest {
                 LocalDate.parse(entry.get("date de disponibilité")),
                 LocalDate.parse(entry.get("date d'expiration"))
         );
+    }
+
+    @Quand("on tente de supprimer l annonce ave l id {string}")
+    public void onTenteDeSupprimerLAnnonceAveLId(String id) {
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .when()
+                .delete("/" + id );
+        //@formatter:on
+    }
+
+    @Alors("l'annonce est bien supprimée")
+    public void lAnnonceEstBienSupprimée() {
+        response.then()
+                .statusCode(HttpStatus.SC_NO_CONTENT);
+    }
+
+    @Et("les annonces en base sont:")
+    public void lesAnnoncesEnBaseSont(DataTable dataTable) {
+        var expectedSavedOffers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOffer);
+
+        List<Offer> savedOffers = (List<Offer>) offerRepository.findAll();
+
+        assertThat(savedOffers)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedSavedOffers.toArray(Offer[]::new));
     }
 }

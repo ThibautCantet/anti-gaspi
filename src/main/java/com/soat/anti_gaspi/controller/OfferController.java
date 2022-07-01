@@ -75,6 +75,12 @@ public class OfferController {
         return new ResponseEntity<>(publishedOffers, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
+        offerRepository.deleteById(id);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
     private void sendEmail(String subject, String beneficiaire, String body) throws NotificationException {
         try {
