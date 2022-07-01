@@ -44,6 +44,9 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
+        if(offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         offer.setId(UUID.randomUUID());
         var saved = offerRepository.save(offer);
 

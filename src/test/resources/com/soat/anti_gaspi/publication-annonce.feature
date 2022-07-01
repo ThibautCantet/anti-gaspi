@@ -13,6 +13,17 @@ Fonctionnalité: Publication d'une annonce
     Alors la publication est enregistrée et un statut est "non publiée"
     Et un mail de confirmation est envoyé à "revendeur@donner.fr"
 
+  Scénario: Annonce rejetée lorsque la date d'expiration est anterieure à la date de disponibilité
+    Etant donné l'entreprise "SOAT"
+    Et le titre "3 vieux ordinateurs"
+    Et la description "3 ordinateurs sous Windows 10 en bon état"
+    Et l'email de contact "revendeur@donner.fr"
+    Et l'adresse "20 rue des frigos, 75013 Paris"
+    Et la date de disponibilité "2022-06-30"
+    Et la date d'expiration le "2022-05-31"
+    Quand on tente une publication d’une annonce
+    Alors la publication n'est enregistrée
+
   Scénario: Annonce confirmée
     Etant donné les annnonces sauvegardées:
       | id                                   | entreprise | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |

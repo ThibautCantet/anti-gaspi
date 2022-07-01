@@ -361,4 +361,10 @@ public class PublicationAnnonceATest extends ATest {
 
         assertThat(expectedOffer).usingRecursiveComparison().isEqualTo(offer);
     }
+
+    @Alors("la publication n'est enregistrée")
+    public void laPublicationNEstEnregistrée() {
+        response.then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST);
+    }
 }
