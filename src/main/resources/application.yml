@@ -3,7 +3,7 @@ spring:
     database: POSTGRESQL
     show-sql: true
   application:
-    name: cars
+    name: anti-gaspi
   datasource:
     driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/antigaspi

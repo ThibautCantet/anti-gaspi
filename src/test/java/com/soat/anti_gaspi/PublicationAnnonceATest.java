@@ -68,7 +68,8 @@ public class PublicationAnnonceATest extends ATest {
 
    private SimpleSmtpServer mailServer;
 
-   private String company;
+   private UUID id;
+   private String companyName;
    private String title;
    private String description;
    private String email;
@@ -82,6 +83,7 @@ public class PublicationAnnonceATest extends ATest {
    public void setUp() throws IOException {
       initIntegrationTest();
       mailServer = SimpleSmtpServer.start(STMP_PORT);
+      initPath();
    }
 
    @After
@@ -96,7 +98,7 @@ public class PublicationAnnonceATest extends ATest {
 
    @Etantdonné("l'entreprise {string}")
    public void lEntreprise(String company) {
-      this.company = company;
+      this.companyName = company;
    }
 
    @Etantdonné("le titre {string}")
@@ -132,7 +134,7 @@ public class PublicationAnnonceATest extends ATest {
    @Quand("on tente une publication d’une annonce")
    public void onTenteUnePublicationDUneAnnonce() throws JsonProcessingException {
       offerToSave = new Offer(
-            company,
+            companyName,
             title,
             description,
             email,
@@ -142,7 +144,6 @@ public class PublicationAnnonceATest extends ATest {
       );
 
       String body = objectMapper.writeValueAsString(offerToSave);
-      initPath();
       //@formatter:off
       response = given()
             .log().all()
@@ -180,7 +181,7 @@ public class PublicationAnnonceATest extends ATest {
         assertThat(sentEmail.getHeaderValue("Subject")).contains(offerToSave.getTitle());
         String body = decodeBody(sentEmail);
         assertThat(body).contains(offerToSave.getDescription());
-        assertThat(body).contains(offerToSave.getCompany());
+        assertThat(body).contains(offerToSave.getCompanyName());
         assertThat(body).contains(offerToSave.getAddress());
         assertThat(body).contains(offerToSave.getAvailabilityDate().toString());
         assertThat(body).contains(offerToSave.getExpirationDate().toString());
@@ -212,20 +213,21 @@ public class PublicationAnnonceATest extends ATest {
 
     @Etantdonné("les annnonces:")
     public void lesAnnnonces(DataTable dataTable) {
-        List<Offer> offers = dataTableTransformEntries(dataTable, this::buildOffer);
+        List<Offer> offers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOffer);
         offerRepository.saveAll(offers);
     }
-    private Offer buildOffer(Map<String, String> entry) {
+
+    private static Offer buildOffer(Map<String, String> entry) {
         return new Offer(
                 UUID.fromString(entry.get("id")),
-                entry.get("company"),
-                entry.get("title"),
+                entry.get("companyName"),
+                entry.get("titre"),
                 entry.get("description"),
                 entry.get("email"),
-                entry.get("address"),
-                LocalDate.parse(entry.get("availabilityDate")),
-                LocalDate.parse(entry.get("expirationDate")),
-                Status.from(entry.get("status"))
+                entry.get("adresse"),
+                LocalDate.parse(entry.get("date de disponibilité")),
+                LocalDate.parse(entry.get("date d'expiration")),
+                Status.from(entry.get("statut"))
         );
 
     }
@@ -241,27 +243,24 @@ public class PublicationAnnonceATest extends ATest {
     @Alors("la publication est au statut est {string}")
     public void laPublicationEstAuStatutEst(String statusValue) {
         Status status = Status.from(statusValue);
-        UUID id = response.then()
-                .statusCode(HttpStatus.SC_OK)
-                .extract()
-                .as(UUID.class);
+        response.then()
+                .statusCode(HttpStatus.SC_ACCEPTED);
 
-        var savedOffer = offerRepository.findById(id).orElse(null);
-        assertThat(savedOffer).isNotNull();
-        assertThat(savedOffer).usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(this.offerToSave);
-        assertThat(savedOffer.getStatus()).isEqualTo(status);
+        var updatedOffer = offerRepository.findById(this.id).orElse(null);
+        assertThat(updatedOffer).isNotNull();
+        assertThat(updatedOffer.getStatus()).isEqualTo(status);
     }
 
     @Quand("on tente de confirmer l annonce avec l id {string}")
     public void onTenteDeConfirmerLAnnonceAvecLId(String id) {
+       this.id = UUID.fromString(id);
+
         //@formatter:off
         response = given()
                 .log().all()
                 .header("Content-Type", ContentType.JSON)
                 .when()
-                .post("/" + id + "/confirmation");
+                .post("/" + id + "/confirm");
         //@formatter:on
     }
 }

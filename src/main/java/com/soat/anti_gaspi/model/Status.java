@@ -3,7 +3,8 @@ package com.soat.anti_gaspi.model;
 import java.util.Arrays;
 
 public enum Status {
-    UNPUBLISHED("non publiée");
+    UNPUBLISHED("non publiée"),
+    PUBLISHED("publiée");
 
     private String value;
 

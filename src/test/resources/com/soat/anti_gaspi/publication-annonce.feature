@@ -16,9 +16,9 @@ Fonctionnalité: Publication d'une annonce
 
   Scénario: Annonce confirmée
     Etant donné les annnonces:
-      | id                                   | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
-      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | id                                   | companyName | titre                 | description                               | email               | adresse                        | statut      | date de disponibilité | date d'expiration |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d38 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d39 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
+      | 9c1845ea-a7be-4848-aba4-66ba33fd6d40 | SOAT        | Don  de 3 ordinateurs | 3 ordinateurs sous Windows 10 en bon état | revendeur@donner.fr | 20 rue des frigos, 75013 Paris | non publiée | 2022-05-31            | 2022-06-30        |
     Quand on tente de confirmer l annonce avec l id "9c1845ea-a7be-4848-aba4-66ba33fd6d38"
     Alors la publication est au statut est "publiée"

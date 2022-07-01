@@ -11,7 +11,7 @@ public class Offer {
     @Id
     private UUID id;
     @Column
-    private String company;
+    private String companyName;
     @Column
     private String title;
     @Column
@@ -28,8 +28,8 @@ public class Offer {
     @Column
     private Status status;
 
-    public Offer(String company, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate) {
-        this.company = company;
+    public Offer(String companyName, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate) {
+        this.companyName = companyName;
         this.title = title;
         this.description = description;
         this.email = email;
@@ -39,9 +39,9 @@ public class Offer {
         this.status = Status.UNPUBLISHED;
     }
 
-    public Offer(UUID id, String company, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate, Status status) {
+    public Offer(UUID id, String companyName, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate, Status status) {
         this.id = id;
-        this.company = company;
+        this.companyName = companyName;
         this.title = title;
         this.description = description;
         this.email = email;
@@ -60,8 +60,8 @@ public class Offer {
     }
 
 
-    public String getCompany() {
-        return company;
+    public String getCompanyName() {
+        return companyName;
     }
 
     public String getTitle() {
@@ -94,5 +94,9 @@ public class Offer {
 
     public Status getStatus() {
         return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
