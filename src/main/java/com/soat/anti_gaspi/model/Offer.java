@@ -25,6 +25,9 @@ public class Offer {
     @Column
     private LocalDate expirationDate;
 
+    @Column
+    private Status status;
+
     public Offer(String company, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate) {
         this.company = company;
         this.title = title;
@@ -33,6 +36,7 @@ public class Offer {
         this.address = address;
         this.availabilityDate = availabilityDate;
         this.expirationDate = expirationDate;
+        this.status = Status.UNPUBLISHED;
     }
 
     public Offer() {
@@ -74,5 +78,9 @@ public class Offer {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }

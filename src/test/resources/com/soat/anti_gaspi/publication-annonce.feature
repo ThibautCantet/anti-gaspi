@@ -10,5 +10,5 @@ Fonctionnalité: Publication d'une annonce
     Et la date de disponibilité "2022-05-31"
     Et la date d'expiration le "2022-06-30"
     Quand on tente une publication d’une annonce
-    Alors la publication est enregistrée
+    Alors la publication est enregistrée et un statut est "non publiée"
     Et un mail de confirmation est envoyé à "revendeur@donner.fr"

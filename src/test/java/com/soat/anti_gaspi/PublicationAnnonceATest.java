@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
 import com.soat.anti_gaspi.model.Offer;
+import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -73,8 +74,6 @@ public class PublicationAnnonceATest extends ATest {
    private LocalDate expirationDate;
    private Offer offerToSave;
 
-   private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
    @Before
    @Override
    public void setUp() throws IOException {
@@ -83,7 +82,7 @@ public class PublicationAnnonceATest extends ATest {
    }
 
    @After
-   public void tearDown() throws Exception {
+   public void tearDown() {
       mailServer.stop();
    }
 
@@ -150,20 +149,21 @@ public class PublicationAnnonceATest extends ATest {
             .post("/");
       //@formatter:on
    }
+    @Alors("la publication est enregistrée et un statut est {string}")
+    public void laPublicationEstEnregistréeEtUnStatutEst(String statusValue) {
+        Status status = Status.from(statusValue);
+        UUID id = response.then()
+                .statusCode(HttpStatus.SC_CREATED)
+                .extract()
+                .as(UUID.class);
 
-   @Alors("la publication est enregistrée")
-   public void laPublicationEstEnregistrée() {
-      UUID id = response.then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .extract()
-            .as(UUID.class);
-
-      var savedOffer = offerRepository.findById(id).orElse(null);
-      assertThat(savedOffer).isNotNull();
-      assertThat(savedOffer).usingRecursiveComparison()
-            .ignoringFields("id")
-            .isEqualTo(this.offerToSave);
-   }
+        var savedOffer = offerRepository.findById(id).orElse(null);
+        assertThat(savedOffer).isNotNull();
+        assertThat(savedOffer).usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(this.offerToSave);
+        assertThat(savedOffer.getStatus()).isEqualTo(status);
+    }
 
     @Et("un mail de confirmation est envoyé à {string}")
     public void unMailDeConfirmationEstEnvoyéÀ(String email) throws DecoderException {
