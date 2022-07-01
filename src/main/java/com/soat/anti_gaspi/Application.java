@@ -13,9 +13,9 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public Clock getClock() {
-        return Clock.systemDefaultZone();
-    }
+//    @Bean
+//    public Clock getClock() {
+//        return Clock.systemDefaultZone();
+//    }
 
 }

@@ -8,7 +8,6 @@ import com.soat.anti_gaspi.controller.OfferController;
 import com.soat.anti_gaspi.controller.SavedOffer;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
-import com.soat.anti_gaspi.repository.ClockRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -29,14 +28,17 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -49,7 +51,6 @@ import java.util.stream.Collectors;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.AUTO_CONFIGURED)
@@ -60,6 +61,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext
 @CucumberContextConfiguration
+// @ContextConfiguration(classes = { PublicationAnnonceATest.Config.class })
+@Import({  PublicationAnnonceATest.Config.class })
 @ActiveProfiles("AcceptanceTest")
 public class PublicationAnnonceATest extends ATest {
 
@@ -68,7 +71,7 @@ public class PublicationAnnonceATest extends ATest {
     private OfferRepository offerRepository;
 
     @Autowired
-    private ClockRepository clockRepository;
+    private Clock clock;
 
     private SimpleSmtpServer mailServer;
 
@@ -88,7 +91,6 @@ public class PublicationAnnonceATest extends ATest {
         initIntegrationTest();
         mailServer = SimpleSmtpServer.start(STMP_PORT);
         initPath();
-        clockRepository = new FakeClockRepository(LocalDate.parse("2023-04-04"));
     }
 
     @After
@@ -380,6 +382,14 @@ public class PublicationAnnonceATest extends ATest {
 
     @Et("la date du jour est le {string}")
     public void laDateDuJourEstLe(String today) {
-        Clock.fixed(LocalDate.parse(today).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.of("UTC"));
+        // Clock.fixed(LocalDate.parse(today).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.of("UTC"));
+    }
+
+    @Configuration
+     class Config {
+        @Bean
+        public Clock getClock() {
+            return Clock.fixed(LocalDate.parse("2023-04-04").atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.of("UTC"));
+        }
     }
 }
