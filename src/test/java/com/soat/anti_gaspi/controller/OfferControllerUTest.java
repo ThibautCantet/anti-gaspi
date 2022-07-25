@@ -72,10 +72,6 @@ class OfferControllerUTest {
     @Test
     void create_should_return_bad_request_when_invalid_email() throws NotificationException {
         // given
-        Offer offer = new Offer();
-        offer.setId(UUID.randomUUID());
-        given(offerRepository.save(any())).willReturn(offer);
-
         OfferToSave offerToSave = new OfferToSave("SOAT",
                 "3 vieux ordinateurs",
                 "3 ordinateurs sous Windows 10 en bon état",

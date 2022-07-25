@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -34,6 +36,8 @@ public class OfferController {
     private final ContactRepository contactRepository;
     private final Clock clock;
 
+    private static final String EMAIL_REGEX = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
+
     public OfferController(OfferRepository offerRepository, ContactRepository contactRepository, Clock clock) {
         this.offerRepository = offerRepository;
         this.contactRepository = contactRepository;
@@ -50,7 +54,9 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if (offer.getExpirationDate().isBefore(LocalDate.now(clock)) || offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
+        if (!isEmail(offer.getEmail()) ||
+                offer.getExpirationDate().isBefore(LocalDate.now(clock)) ||
+                offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         offer.setId(UUID.randomUUID());
@@ -145,5 +151,11 @@ public class OfferController {
         } catch (MessagingException e) {
             throw new NotificationException(e);
         }
+    }
+
+    private static boolean isEmail(String adresse) {
+        final Pattern r = Pattern.compile(EMAIL_REGEX);
+        final Matcher m = r.matcher(adresse);
+        return m.matches();
     }
 }
