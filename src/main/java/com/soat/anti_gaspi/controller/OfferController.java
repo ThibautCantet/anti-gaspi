@@ -1,5 +1,6 @@
 package com.soat.anti_gaspi.controller;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,10 +32,12 @@ public class OfferController {
     public static final String PATH = "/api/offers";
     private final OfferRepository offerRepository;
     private final ContactRepository contactRepository;
+    private final Clock clock;
 
-    public OfferController(OfferRepository offerRepository, ContactRepository contactRepository) {
+    public OfferController(OfferRepository offerRepository, ContactRepository contactRepository, Clock clock) {
         this.offerRepository = offerRepository;
         this.contactRepository = contactRepository;
+        this.clock = clock;
     }
 
     @PostMapping("")
@@ -47,7 +50,7 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if (offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
+        if (offer.getExpirationDate().isBefore(LocalDate.now(clock)) || offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         offer.setId(UUID.randomUUID());
