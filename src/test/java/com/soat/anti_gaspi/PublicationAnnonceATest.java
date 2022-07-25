@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.ContactToSave;
 import com.soat.anti_gaspi.controller.OfferController;
+import com.soat.anti_gaspi.controller.OfferPage;
 import com.soat.anti_gaspi.controller.SavedOffer;
 import com.soat.anti_gaspi.model.Contact;
 import com.soat.anti_gaspi.model.Offer;
@@ -286,9 +287,10 @@ public class PublicationAnnonceATest extends ATest {
     @Alors("la publication les annonces affichées sont:")
     public void laPublicationLesAnnoncesAffichéesSont(DataTable dataTable) {
         List<SavedOffer> savedOffers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
-        var detailDtos = response.then().statusCode(HttpStatus.SC_OK).extract()
-                .as(SavedOffer[].class);
-        assertThat(Arrays.stream(detailDtos).toList())
+        var savedOfferPage = response.then().statusCode(HttpStatus.SC_OK).extract()
+                .as(OfferPage.class);
+        assertThat(savedOfferPage.total()).isEqualTo(2L);
+        assertThat(savedOfferPage.content())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(savedOffers.toArray(SavedOffer[]::new));
     }

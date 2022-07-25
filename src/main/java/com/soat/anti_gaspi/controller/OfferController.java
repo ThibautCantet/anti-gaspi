@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -25,6 +26,8 @@ import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -101,16 +104,20 @@ public class OfferController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SavedOffer>> getPublishedOffers(@RequestParam int pageNumber,
+    public ResponseEntity<OfferPage> getPublishedOffers(@RequestParam int pageNumber,
                                                                @RequestParam int pageSize,
                                                                @RequestParam String sortBy) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
-        var allOffers = offerRepository.findAll(pageable);
-        var publishedOffers = allOffers.stream()
-                .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
+
+        Page<Offer> allOffers = offerRepository.findAllByStatus(Status.PUBLISHED, pageable);
+
+        List<SavedOffer> savedOffers = allOffers.stream()
                 .map(this::toOfferSavedJson)
                 .toList();
-        return new ResponseEntity<>(publishedOffers, HttpStatus.OK);
+
+        var result = new OfferPage(savedOffers, allOffers.getTotalElements());
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     private SavedOffer toOfferSavedJson(Offer offer) {
