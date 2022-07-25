@@ -105,7 +105,7 @@ public class OfferController {
                                                                @RequestParam int pageSize,
                                                                @RequestParam String sortBy) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
-        var allOffers = (List<Offer>) offerRepository.findAll(pageable);
+        var allOffers = offerRepository.findAll(pageable);
         var publishedOffers = allOffers.stream()
                 .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
                 .map(this::toOfferSavedJson)

@@ -279,7 +279,7 @@ public class PublicationAnnonceATest extends ATest {
                 .log().all()
                 .header("Content-Type", ContentType.JSON)
                 .when()
-                .get("/");
+                .get("/?pageNumber=0&pageSize=10&sortBy=id");
         //@formatter:on
     }
 
