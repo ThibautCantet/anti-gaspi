@@ -417,7 +417,7 @@ public class PublicationAnnonceATest extends ATest {
 
     @Quand("il tente de contacter l'entreprise pour l’annonce avec l id {string}")
     public void ilTenteDeContacterLEntreprisePourLAnnonceAvecLId(String offerId) throws JsonProcessingException {
-        ContactToSave contactToSave = new ContactToSave(lastName, firstName, phoneNumber, messageContent, offerId);
+        ContactToSave contactToSave = new ContactToSave(lastName, firstName, phoneNumber, null, messageContent, offerId);
 
         String body = objectMapper.writeValueAsString(contactToSave);
         //@formatter:off

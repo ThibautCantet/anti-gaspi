@@ -145,6 +145,10 @@ public class OfferController {
         );
 
         contact.setId(UUID.randomUUID());
+        if (!fieldValidator.test(contact.getFirstName(), "FirstName") ||
+                !fieldValidator.test(contact.getLastName(), "LastName") || !isEmail(contactToSave.email())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         final Contact savedContact = contactRepository.save(contact);
         final Offer offer = offerRepository.findById(id).orElse(null);
         sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto");
