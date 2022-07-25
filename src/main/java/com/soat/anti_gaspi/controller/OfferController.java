@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.Message;
@@ -23,10 +24,12 @@ import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping(OfferController.PATH)
 public class OfferController {
@@ -54,7 +57,8 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if (!isEmail(offer.getEmail()) ||
+        if (!fieldValidator.test(offer.getCompanyName(),"CompanyName" ) ||
+                !isEmail(offer.getEmail()) ||
                 offer.getExpirationDate().isBefore(LocalDate.now(clock)) ||
                 offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -67,6 +71,15 @@ public class OfferController {
 
         return new ResponseEntity<>(saved.getId(), HttpStatus.CREATED);
     }
+
+
+
+    BiPredicate<String, String> fieldValidator = (s, field) -> {
+        boolean test = !s.isEmpty() && !s.isBlank();
+        if (!test) { log.warn(field, "  not valid  :( "); }
+        return test;
+    };
+
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<Void> confirm(@PathVariable("id") UUID uuid) {
@@ -131,7 +144,7 @@ public class OfferController {
         contact.setId(UUID.randomUUID());
         final Contact savedContact = contactRepository.save(contact);
         final Offer offer = offerRepository.findById(id).orElse(null);
-        sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto" );
+        sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto");
         return new ResponseEntity<>(savedContact.getId(), HttpStatus.CREATED);
     }
 

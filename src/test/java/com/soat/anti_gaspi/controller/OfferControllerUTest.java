@@ -88,4 +88,23 @@ class OfferControllerUTest {
     }
 
 
+    @Test
+    void create_should_return_bad_request_when_empty_Company_name() throws NotificationException {
+        // given
+        OfferToSave offerToSave = new OfferToSave("",
+                "3 vieux ordinateurs",
+                "3 ordinateurs sous Windows 10 en bon état",
+                "revendeur@soat.fr",
+                "20 rue des frigos, 75013 Paris",
+                "2022-05-31",
+                "2022-08-30");
+
+        // when
+        ResponseEntity<UUID> result = offerController.create(offerToSave);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+    }
+
+
 }
