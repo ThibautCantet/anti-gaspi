@@ -417,7 +417,7 @@ public class PublicationAnnonceATest extends ATest {
 
     @Quand("il tente de contacter l'entreprise pour l’annonce avec l id {string}")
     public void ilTenteDeContacterLEntreprisePourLAnnonceAvecLId(String offerId) throws JsonProcessingException {
-        ContactToSave contactToSave = new ContactToSave(lastName, firstName, phoneNumber, null, messageContent, offerId);
+        ContactToSave contactToSave = new ContactToSave(lastName, firstName, phoneNumber, email, messageContent, "9c1845ea-a7be-4848-aba4-66ba33fd6d38");
 
         String body = objectMapper.writeValueAsString(contactToSave);
         //@formatter:off
@@ -444,7 +444,5 @@ public class PublicationAnnonceATest extends ATest {
         assertThat(sentEmail.getHeaderValue("Subject")).contains(lastName + "is interested to your offer");
         String body = decodeBody(sentEmail);
         assertThat(body).contains("toto");
-        // assertThat(body).contains(email);
-        // assertThat(body).contains(phoneNumber);
     }
 }
