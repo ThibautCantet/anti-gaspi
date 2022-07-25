@@ -25,6 +25,9 @@ import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -98,8 +101,11 @@ public class OfferController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SavedOffer>> getPublishedOffers() {
-        var allOffers = (List<Offer>) offerRepository.findAll();
+    public ResponseEntity<List<SavedOffer>> getPublishedOffers(@RequestParam int pageNumber,
+                                                               @RequestParam int pageSize,
+                                                               @RequestParam String sortBy) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        var allOffers = (List<Offer>) offerRepository.findAll(pageable);
         var publishedOffers = allOffers.stream()
                 .filter(offer -> Status.PUBLISHED.equals(offer.getStatus()))
                 .map(this::toOfferSavedJson)
