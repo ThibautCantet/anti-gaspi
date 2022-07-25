@@ -216,6 +216,18 @@ class OfferControllerUTest {
             assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
         }
 
+        @Test
+        void should_return_bad_request_when_invalid_Num_Phone() throws NotificationException {
+            // given
+            ContactToSave contactToSave = new ContactToSave("Dupond", "Martin", "=712345678", "revendeur@invalid-email", "lorem ipsum", "9c1845ea-a7be-4848-aba4-66ba33fd6d39");
+
+            // when
+            ResponseEntity<UUID> result = offerController.createContact(UUID.fromString("9c1845ea-a7be-4848-aba4-66ba33fd6d40"), contactToSave);
+
+            // then
+            assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+        }
+
     }
 
 }

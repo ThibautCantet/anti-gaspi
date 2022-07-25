@@ -40,6 +40,7 @@ public class OfferController {
     private final Clock clock;
 
     private static final String EMAIL_REGEX = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
+    private static final String FRENCH_PHONE_NUM_REGEX = "^(?:(?:\\+|00)33|0)\\s*[1-9](?:[\\s.-]*\\d{2}){4}$";
 
     public OfferController(OfferRepository offerRepository, ContactRepository contactRepository, Clock clock) {
         this.offerRepository = offerRepository;
@@ -61,7 +62,7 @@ public class OfferController {
                 !fieldValidator.test(offer.getTitle(), "Title") ||
                 !fieldValidator.test(offer.getDescription(), "Description") ||
                 !fieldValidator.test(offer.getAddress(), "Address") ||
-                !isEmail(offer.getEmail()) ||
+                !validMatch.test(offer.getEmail(), EMAIL_REGEX) ||
                 offer.getAvailabilityDate().isBefore(LocalDate.now(clock)) ||
                 offer.getExpirationDate().isBefore(LocalDate.now(clock)) ||
                 offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
@@ -146,7 +147,9 @@ public class OfferController {
 
         contact.setId(UUID.randomUUID());
         if (!fieldValidator.test(contact.getFirstName(), "FirstName") ||
-                !fieldValidator.test(contact.getLastName(), "LastName") || !isEmail(contactToSave.email())) {
+                !fieldValidator.test(contact.getLastName(), "LastName") ||
+                !validMatch.test(contactToSave.email(), EMAIL_REGEX) ||
+                !validMatch.test(contact.getPhoneNumber(), FRENCH_PHONE_NUM_REGEX)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         final Contact savedContact = contactRepository.save(contact);
@@ -173,9 +176,11 @@ public class OfferController {
         }
     }
 
-    private static boolean isEmail(String adresse) {
-        final Pattern r = Pattern.compile(EMAIL_REGEX);
-        final Matcher m = r.matcher(adresse);
+    BiPredicate<String, String> validMatch = (value, regex) -> {
+        final Pattern r = Pattern.compile(regex);
+        final Matcher m = r.matcher(value);
         return m.matches();
-    }
+    };
+
+
 }
