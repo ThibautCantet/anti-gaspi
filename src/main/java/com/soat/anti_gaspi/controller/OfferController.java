@@ -105,9 +105,10 @@ public class OfferController {
 
     @GetMapping
     public ResponseEntity<OfferPage> getPublishedOffers(@RequestParam int pageNumber,
-                                                               @RequestParam int pageSize,
-                                                               @RequestParam String sortBy) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+                                                        @RequestParam int pageSize,
+                                                        @RequestParam String sortBy,
+                                                        @RequestParam(defaultValue = "asc") String sortOrder) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, "desc".equals(sortOrder) ? Sort.by(sortBy).descending() : Sort.by(sortBy));
 
         Page<Offer> allOffers = offerRepository.findAllByStatus(Status.PUBLISHED, pageable);
 

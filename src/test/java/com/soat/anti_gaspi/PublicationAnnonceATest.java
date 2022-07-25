@@ -289,10 +289,10 @@ public class PublicationAnnonceATest extends ATest {
         List<SavedOffer> savedOffers = dataTableTransformEntries(dataTable, PublicationAnnonceATest::buildOfferSavedJson);
         var savedOfferPage = response.then().statusCode(HttpStatus.SC_OK).extract()
                 .as(OfferPage.class);
-        assertThat(savedOfferPage.total()).isEqualTo(2L);
+        assertThat(savedOfferPage.total()).isEqualTo(savedOffers.size());
         assertThat(savedOfferPage.content())
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyInAnyOrder(savedOffers.toArray(SavedOffer[]::new));
+                .containsExactly(savedOffers.toArray(SavedOffer[]::new));
     }
 
     private static SavedOffer buildOfferSavedJson(Map<String, String> entry) {
@@ -446,5 +446,16 @@ public class PublicationAnnonceATest extends ATest {
         assertThat(sentEmail.getHeaderValue("Subject")).contains(lastName + "is interested to your offer");
         String body = decodeBody(sentEmail);
         assertThat(body).contains("toto");
+    }
+
+    @Quand("on tente d'afficher les annonces en triant par titre")
+    public void onTenteDAfficherLesAnnoncesEnTriantParTitre() {
+        //@formatter:off
+        response = given()
+                .log().all()
+                .header("Content-Type", ContentType.JSON)
+                .when()
+                .get("/?pageNumber=0&pageSize=10&sortBy=title&sortOrder=desc");
+        //@formatter:on
     }
 }
