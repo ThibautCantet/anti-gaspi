@@ -57,8 +57,12 @@ public class OfferController {
                 offerToSave.address(),
                 LocalDate.parse(offerToSave.availabilityDate(), dateFormatter),
                 LocalDate.parse(offerToSave.expirationDate(), dateFormatter));
-        if (!fieldValidator.test(offer.getCompanyName(),"CompanyName" ) ||
+        if (!fieldValidator.test(offer.getCompanyName(), "CompanyName") ||
+                !fieldValidator.test(offer.getTitle(), "Title") ||
+                !fieldValidator.test(offer.getDescription(), "Description") ||
+                !fieldValidator.test(offer.getAddress(), "Address") ||
                 !isEmail(offer.getEmail()) ||
+                offer.getAvailabilityDate().isBefore(LocalDate.now(clock)) ||
                 offer.getExpirationDate().isBefore(LocalDate.now(clock)) ||
                 offer.getAvailabilityDate().isAfter(offer.getExpirationDate())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -72,14 +76,13 @@ public class OfferController {
         return new ResponseEntity<>(saved.getId(), HttpStatus.CREATED);
     }
 
-
-
-    BiPredicate<String, String> fieldValidator = (s, field) -> {
-        boolean test = !s.isEmpty() && !s.isBlank();
-        if (!test) { log.warn(field, "  not valid  :( "); }
+    BiPredicate<String, String> fieldValidator = (fieldValue, fieldName) -> {
+        boolean test = !fieldValue.isEmpty() && !fieldValue.isBlank();
+        if (!test) {
+            log.warn("{} not valid  :(", fieldName);
+        }
         return test;
     };
-
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<Void> confirm(@PathVariable("id") UUID uuid) {

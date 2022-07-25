@@ -52,6 +52,24 @@ class OfferControllerUTest {
     }
 
     @Test
+    void create_should_return_bad_request_when_availability_date_is_in_the_past() throws NotificationException {
+        // given
+        OfferToSave offerToSave = new OfferToSave("SOAT",
+                "3 vieux ordinateurs",
+                "3 ordinateurs sous Windows 10 en bon état",
+                "revendeur@donner.fr",
+                "20 rue des frigos, 75013 Paris",
+                "2022-05-31",
+                "2022-09-30");
+
+        // when
+        ResponseEntity<UUID> result = offerController.create(offerToSave);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+    }
+
+    @Test
     void create_should_return_bad_request_when_expiration_date_is_in_the_past() throws NotificationException {
         // given
         OfferToSave offerToSave = new OfferToSave("SOAT",
@@ -106,5 +124,58 @@ class OfferControllerUTest {
         assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
     }
 
+    @Test
+    void create_should_return_bad_request_when_empty_title() throws NotificationException {
+        // given
+        OfferToSave offerToSave = new OfferToSave("SOAT",
+                "",
+                "3 ordinateurs sous Windows 10 en bon état",
+                "revendeur@soat.fr",
+                "20 rue des frigos, 75013 Paris",
+                "2022-05-31",
+                "2022-08-30");
+
+        // when
+        ResponseEntity<UUID> result = offerController.create(offerToSave);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+    }
+
+    @Test
+    void create_should_return_bad_request_when_empty_description() throws NotificationException {
+        // given
+        OfferToSave offerToSave = new OfferToSave("SOAT",
+                "3 vieux ordinateurs",
+                "",
+                "revendeur@soat.fr",
+                "20 rue des frigos, 75013 Paris",
+                "2022-05-31",
+                "2022-08-30");
+
+        // when
+        ResponseEntity<UUID> result = offerController.create(offerToSave);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+    }
+
+    @Test
+    void create_should_return_bad_request_when_empty_address() throws NotificationException {
+        // given
+        OfferToSave offerToSave = new OfferToSave("SOAT",
+                "3 vieux ordinateurs",
+                "3 ordinateurs sous Windows 10 en bon état",
+                "revendeur@soat.fr",
+                "",
+                "2022-05-31",
+                "2022-08-30");
+
+        // when
+        ResponseEntity<UUID> result = offerController.create(offerToSave);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(BAD_REQUEST);
+    }
 
 }
