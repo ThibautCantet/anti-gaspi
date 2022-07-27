@@ -1,4 +1,4 @@
-package com.soat.anti_gaspi;
+package com.soat.anti_gaspi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
