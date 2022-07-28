@@ -10,6 +10,7 @@ import com.dumbster.smtp.SimpleSmtpServer;
 import com.soat.anti_gaspi.model.NotificationException;
 import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
+import com.soat.anti_gaspi.service.EmailService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.*;
@@ -32,7 +34,11 @@ class OfferControllerUTest {
 
     @Mock
     private ContactRepository contactRepository;
-    private final Clock clock = Clock.fixed(LocalDate.parse("2022-07-25").atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.of("UTC"));;
+
+    @Mock
+    private EmailService smailService;
+
+    private final Clock clock = Clock.fixed(LocalDate.parse("2022-07-28").atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.of("UTC"));;
 
 
     public static final int SMTP_PORT = 9999;
@@ -40,7 +46,7 @@ class OfferControllerUTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        offerController = new OfferController(offerRepository, contactRepository, clock);
+        offerController = new OfferController(smailService, offerRepository, contactRepository, clock);
         mailServer = SimpleSmtpServer.start(SMTP_PORT);
     }
 

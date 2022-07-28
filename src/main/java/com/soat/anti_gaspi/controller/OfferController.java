@@ -1,23 +1,17 @@
 package com.soat.anti_gaspi.controller;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+
 
 import com.soat.anti_gaspi.model.Contact;
 import com.soat.anti_gaspi.model.NotificationException;
@@ -25,9 +19,10 @@ import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.ContactRepository;
 import com.soat.anti_gaspi.repository.OfferRepository;
+import com.soat.anti_gaspi.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 public class OfferController {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final String PATH = "/api/offers";
+    private final EmailService smailService;
     private final OfferRepository offerRepository;
     private final ContactRepository contactRepository;
     private final Clock clock;
@@ -48,14 +44,15 @@ public class OfferController {
     private static final String EMAIL_REGEX = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
     private static final String FRENCH_PHONE_NUM_REGEX = "^(?:(?:\\+|00)33|0)\\s*[1-9](?:[\\s.-]*\\d{2}){4}$";
 
-    public OfferController(OfferRepository offerRepository, ContactRepository contactRepository, Clock clock) {
+    public OfferController(@Qualifier("emailService")  EmailService smailService, OfferRepository offerRepository, ContactRepository contactRepository, Clock clock) {
+        this.smailService = smailService;
         this.offerRepository = offerRepository;
         this.contactRepository = contactRepository;
         this.clock = clock;
     }
 
     @PostMapping("")
-    public ResponseEntity<UUID> create(@RequestBody OfferToSave offerToSave) throws NotificationException {
+    public ResponseEntity<UUID> create(@RequestBody OfferToSave offerToSave) {
         Offer offer = new Offer(
                 offerToSave.companyName(),
                 offerToSave.title(),
@@ -78,9 +75,8 @@ public class OfferController {
         var saved = offerRepository.save(offer);
 
         String emailBody = String.format("%s %s %s %s %s", offer.getDescription(), offer.getAddress(), offer.getCompanyName(), offer.getAvailabilityDate(), offer.getExpirationDate());
-        sendEmail(offer.getTitle(), offer.getEmail(), emailBody);
-
-        return new ResponseEntity<>(saved.getId(), HttpStatus.CREATED);
+            smailService.sendEmail(offer.getTitle(), offer.getEmail(), emailBody);
+                    return new ResponseEntity<>(saved.getId(), HttpStatus.CREATED);
     }
 
     BiPredicate<String, String> fieldValidator = (fieldValue, fieldName) -> {
@@ -150,7 +146,7 @@ public class OfferController {
     }
 
     @PostMapping("/{id}/contact")
-    public ResponseEntity<UUID> createContact(@PathVariable("id") UUID id, @RequestBody ContactToSave contactToSave) throws NotificationException {
+    public ResponseEntity<UUID> createContact(@PathVariable("id") UUID id, @RequestBody ContactToSave contactToSave) {
         Contact contact = new Contact(
                 contactToSave.lastName(),
                 contactToSave.firstName(),
@@ -168,28 +164,9 @@ public class OfferController {
         }
         final Contact savedContact = contactRepository.save(contact);
         final Offer offer = offerRepository.findById(id).orElse(null);
-        sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto");
+            smailService.sendEmail(contactToSave.lastName() + "is interested to your offer", offer.getEmail(), "toto");
         return new ResponseEntity<>(savedContact.getId(), HttpStatus.CREATED);
     }
-
-    private void sendEmail(String subject, String beneficiaire, String body) throws NotificationException {
-        try {
-            Properties props = new Properties();
-            props.put("mail.smtp.host", "localhost");
-            props.put("mail.smtp.port", "" + 9999);
-            Session session = Session.getInstance(props, null);
-
-            Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress("no-reply@anti-gaspi.fr"));
-            msg.setRecipient(Message.RecipientType.TO, new InternetAddress(beneficiaire));
-            msg.setSubject(subject);
-            msg.setContent(body, "text/plain; charset=UTF-8");
-            Transport.send(msg);
-        } catch (MessagingException e) {
-            throw new NotificationException(e);
-        }
-    }
-
     BiPredicate<String, String> validMatch = (value, regex) -> {
         final Pattern r = Pattern.compile(regex);
         final Matcher m = r.matcher(value);
