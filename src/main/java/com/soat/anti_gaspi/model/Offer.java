@@ -39,18 +39,6 @@ public class Offer {
         this.status = Status.UNPUBLISHED;
     }
 
-    public Offer(UUID id, String companyName, String title, String description, String email, String address, LocalDate availabilityDate, LocalDate expirationDate, Status status) {
-        this.id = id;
-        this.companyName = companyName;
-        this.title = title;
-        this.description = description;
-        this.email = email;
-        this.address = address;
-        this.availabilityDate = availabilityDate;
-        this.expirationDate = expirationDate;
-        this.status = status;
-    }
-
     public Offer() {
 
     }
