@@ -1,4 +1,4 @@
-package com.soat.anti_gaspi.controller;
+package com.soat.anti_gaspi.dto;
 
 import java.util.List;
 

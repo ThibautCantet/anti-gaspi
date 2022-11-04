@@ -2,6 +2,8 @@ package com.soat.anti_gaspi.controller;
 
 import java.util.List;
 
+import com.soat.anti_gaspi.dto.OfferPage;
+import com.soat.anti_gaspi.dto.SavedOffer;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;

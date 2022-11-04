@@ -10,8 +10,8 @@ import java.util.function.Function;
 
 import com.soat.ATest;
 import com.soat.anti_gaspi.controller.OfferController;
-import com.soat.anti_gaspi.controller.OfferPage;
-import com.soat.anti_gaspi.controller.SavedOffer;
+import com.soat.anti_gaspi.dto.OfferPage;
+import com.soat.anti_gaspi.dto.SavedOffer;
 import com.soat.anti_gaspi.model.Offer;
 import com.soat.anti_gaspi.model.Status;
 import com.soat.anti_gaspi.repository.OfferRepository;
